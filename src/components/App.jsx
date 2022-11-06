@@ -19,47 +19,36 @@ export function App() {
   const [images, setImages] = useState(null);
   const [loading, setLoading] = useState(false);
 
-
   useEffect(() => {
+    const controller = new AbortController();
+
     async function fatchData() {
       try {
         if (searchText !== '') {
           setLoading(true);
           const response = await axios.get(
-            `?q=${searchText}&page=${page}&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=${perPage}`
+            `?q=${searchText}&page=${page}&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=${perPage}`,
+            { signal: controller.signal }
           );
+          setLoading(false);
           const imagesArr = response.data.hits;
+          setImages(imagesArr);
 
-          if (imagesArr.length === 0) {
-            setLoading(false);
-            setImages(null);
-            Notify.failure('Нічого не знайдено. Спробуйте ввести щось інше)))');
-          } else {
-            setLoading(false);
-            setImages(imagesArr);
+          if (page >= 2) {
+            let resImg = [...images, ...imagesArr];
+            setImages(resImg);
+                return () => {controller.abort()};
           }
 
           if (page === 1) {
-            setLoading(true);
-            const response = await axios.get(
-              `?q=${searchText}&page=${page}&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=${perPage}`
-            );
-            const resImg = response.data.hits;
-            setLoading(false);
-            setImages(resImg);
-          }
-
-          if (page >= 2) {
-            setLoading(true);
-            const response = await axios.get(
-              `?q=${searchText}&page=${page}&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=${perPage}`
-            );
-            const resImg = response.data.hits;
-            let imagesArr = [...images, ...resImg];
-            setLoading(false);
             setImages(imagesArr);
           }
-        }
+
+          if (imagesArr.length === 0) {
+            setImages(null);
+            Notify.failure('Нічого не знайдено. Спробуйте ввести щось інше)))');
+          } 
+        }        
       } catch (error) {
         setLoading(false);
         Notify.failure('Ups... Щось пішло не так');
@@ -67,7 +56,8 @@ export function App() {
     }
 
     fatchData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, searchText]);
 
   const handleSearchSubmit = searchText => {
@@ -94,3 +84,88 @@ export function App() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// useEffect(() => {
+//   async function fatchData() {
+//     try {
+//       if (searchText === '') {
+//         return;
+//       }
+//       if (searchText !== '' || page === 1) {
+//         setLoading(true);
+//         const response = await axios.get(
+//           `?q=${searchText}&page=${page}&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=${perPage}`
+//         );
+//         const imagesArr = response.data.hits;
+//         setLoading(false);
+//         setImages(imagesArr);
+
+//         if (imagesArr.length === 0) {
+//           setLoading(false);
+//           setImages(null);
+//           Notify.failure('Нічого не знайдено. Спробуйте ввести щось інше)))');
+//         }
+//         // else {
+//         //   setLoading(false);
+//         //   setImages(imagesArr);
+//         // }
+
+//         // if (page === 1) {
+//         //   setLoading(true);
+//         //   const response = await axios.get(
+//         //     `?q=${searchText}&page=${page}&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=${perPage}`
+//         //   );
+//         //   const resImg = response.data.hits;
+//         //   setLoading(false);
+//         //   setImages(resImg);
+//         // }
+//       }
+//       if (searchText !== '' || page >= 2) {
+//         setLoading(true);
+//         const response = await axios.get(
+//           `?q=${searchText}&page=${page}&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=${perPage}`
+//         );
+//         const resImg = response.data.hits;
+//         let imagesArr = [...images, ...resImg];
+//         setLoading(false);
+//         setImages(imagesArr);
+//       }
+//       if (searchText === '') {
+//         return;
+//       }
+//     } catch (error) {
+//       setLoading(false);
+//       Notify.failure('Ups... Щось пішло не так');
+//     }
+//   }
+
+//   fatchData();
+//   // eslint-disable-next-line react-hooks/exhaustive-deps
+// }, [page, searchText]);
