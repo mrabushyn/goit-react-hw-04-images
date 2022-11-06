@@ -1,19 +1,13 @@
-import React, { Component } from 'react';
 import css from './Button.module.css';
 
-export class Button extends Component {
-
-  loadMoreBtn = () => {
-    this.props.onButton();
+export default function Button({ onButton }) {
+  const loadMoreBtn = () => {
+    onButton();
   };
 
-  render() {
-    return (
-      
-        <button className={css.button} onClick={this.loadMoreBtn}>
-          Показати ще
-        </button>
-      
-    );
-  }
+  return (
+    <button className={css.button} onClick={loadMoreBtn}>
+      Показати ще
+    </button>
+  );
 }
